@@ -34,7 +34,7 @@ import (
 	"k8s.io/klog/v2"
 
 	workloadv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/workload/v1alpha1"
-	workloadcliplugin "github.com/kcp-dev/kcp/pkg/cliplugins/workload/plugin"
+	//	workloadcliplugin "github.com/kcp-dev/kcp/pkg/cliplugins/workload/plugin"
 	"github.com/kcp-dev/kcp/pkg/syncer/shared"
 )
 
@@ -58,10 +58,10 @@ func (c *Controller) process(ctx context.Context, gvr schema.GroupVersionResourc
 		return nil
 	}
 	// TODO(sttts): do not reference the cli plugin here
-	if strings.HasPrefix(downstreamNamespace, workloadcliplugin.SyncerIDPrefix) {
-		// skip syncer namespace
-		return nil
-	}
+	// if strings.HasPrefix(downstreamNamespace, workloadcliplugin.SyncerIDPrefix) {
+	// skip syncer namespace
+	//	return nil
+	//}
 
 	// to upstream
 	nsObj, err := c.downstreamNamespaceLister.Get(downstreamNamespace)
