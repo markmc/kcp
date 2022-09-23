@@ -28,7 +28,6 @@ import (
 	apiexportoptions "github.com/kcp-dev/kcp/pkg/virtual/apiexport/options"
 	"github.com/kcp-dev/kcp/pkg/virtual/framework/rootapiserver"
 	initializingworkspacesoptions "github.com/kcp-dev/kcp/pkg/virtual/initializingworkspaces/options"
-	synceroptions "github.com/kcp-dev/kcp/pkg/virtual/syncer/options"
 	workspacesoptions "github.com/kcp-dev/kcp/pkg/virtual/workspaces/options"
 )
 
@@ -36,7 +35,6 @@ const virtualWorkspacesFlagPrefix = "virtual-workspaces-"
 
 type Options struct {
 	Workspaces             *workspacesoptions.Workspaces
-	Syncer                 *synceroptions.Syncer
 	APIExport              *apiexportoptions.APIExport
 	InitializingWorkspaces *initializingworkspacesoptions.InitializingWorkspaces
 }
@@ -44,7 +42,6 @@ type Options struct {
 func NewOptions() *Options {
 	return &Options{
 		Workspaces:             workspacesoptions.New(),
-		Syncer:                 synceroptions.New(),
 		APIExport:              apiexportoptions.New(),
 		InitializingWorkspaces: initializingworkspacesoptions.New(),
 	}
@@ -54,7 +51,6 @@ func (v *Options) Validate() []error {
 	var errs []error
 
 	errs = append(errs, v.Workspaces.Validate(virtualWorkspacesFlagPrefix)...)
-	errs = append(errs, v.Syncer.Validate(virtualWorkspacesFlagPrefix)...)
 	errs = append(errs, v.APIExport.Validate(virtualWorkspacesFlagPrefix)...)
 	errs = append(errs, v.InitializingWorkspaces.Validate(virtualWorkspacesFlagPrefix)...)
 
@@ -78,11 +74,6 @@ func (o *Options) NewVirtualWorkspaces(
 		return nil, err
 	}
 
-	syncer, err := o.Syncer.NewVirtualWorkspaces(rootPathPrefix, config, wildcardKcpInformers)
-	if err != nil {
-		return nil, err
-	}
-
 	apiexports, err := o.APIExport.NewVirtualWorkspaces(rootPathPrefix, config, wildcardKcpInformers)
 	if err != nil {
 		return nil, err
@@ -93,7 +84,7 @@ func (o *Options) NewVirtualWorkspaces(
 		return nil, err
 	}
 
-	all, err := merge(workspaces, syncer, apiexports, initializingworkspaces)
+	all, err := merge(workspaces, apiexports, initializingworkspaces)
 	if err != nil {
 		return nil, err
 	}
