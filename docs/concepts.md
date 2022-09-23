@@ -14,11 +14,6 @@ A logical cluster is a storage level concept that adds an additional attribute t
 kube-apiserver.  Regular servers identify objects by (group, version, resource, optional namespace, name).  A logical
 cluster enriches an identifier: (group, version, resource, **logical cluster name**, optional namespace, name).
 
-## Workload Cluster
-A physical cluster is a “real Kubernetes cluster”, i.e. one that can run Kubernetes workloads and accepts standard
-Kubernetes API objects.  For the near term, it is assumed that a physical cluster is a distribution of Kubernetes and
-passes the conformance tests and exposes the behavior a regular Kubernetes admin or user expects.
-
 ## Workspace
 A workspace models a set of user-facing APIs for CRUD.  Each workspace is backed by a logical cluster, but not all
 logical clusters may be exposed as workspaces.  Creating a Workspace object results in a logical cluster being available
@@ -92,14 +87,3 @@ APIs”), and may be defaulted based on some attributes of a workspace type (all
 Kube APIs, this other “type” get the knative apis).
 
 The evolution of an API within a workspace and across workspaces is of key importance.
-
-## Syncer
-
-A syncer is installed on a SyncTarget and is responsible for synchronizing data between kcp and that cluster.
-
-## Location
-
-A collection of SyncTargets that describe runtime characteristics that allow placement of applications.
-Characteristics are not limited but could describe things like GPU, supported storage, compliance or
-regulatory fulfillment, or geographical placement.
-
