@@ -8,14 +8,12 @@ kcp is a Kubernetes-like control plane focusing on:
 - A **control plane** for many independent, **isolated** “clusters” known as **workspaces**
 - Enabling API service providers to **offer APIs centrally** using **multi-tenant operators**
 - Easy **API consumption** for users in their workspaces
-- Flexible **scheduling** of workloads to physical clusters
-- **Transparent movement** of workloads among compatible physical clusters
-- **Advanced deployment strategies** for scenarios such as affinity/anti-affinity, geographic replication, cross-cloud
-  replication, etc.
 
 kcp can be a building block for SaaS service providers who need a **massively multi-tenant platform** to offer services
 to a large number of fully isolated tenants using Kubernetes-native APIs. The goal is to be useful to cloud
 providers as well as enterprise IT departments offering APIs within their company.
+
+See also kcp's sister project, kcp-workloads.
 
 ## Quickstart
 
@@ -57,95 +55,6 @@ Kustomize Version: v4.5.4
 Server Version: version.Info{Major:"1", Minor:"24", GitVersion:"v1.24.3+kcp-v0.8.0", GitCommit:"41863897", GitTreeState:"clean", BuildDate:"2022-09-02T18:10:37Z", GoVersion:"go1.18.5", Compiler:"gc", Platform:"darwin/amd64"}
 ```
 
-### Configure kcp to sync to your cluster
-
-kcp can't run pods by itself - it needs at least one physical cluster for that. For this example, we'll be using a
-local `kind` cluster.
-
-Run the following command to tell kcp about the `kind` cluster (replace the syncer image tag as needed):
-
-```shell
-$ kubectl kcp workload sync kind --syncer-image ghcr.io/kcp-dev/kcp/syncer:v0.8.0 -o syncer-kind-main.yaml
-Creating synctarget "kind"
-Creating service account "kcp-syncer-kind-25coemaz"
-Creating cluster role "kcp-syncer-kind-25coemaz" to give service account "kcp-syncer-kind-25coemaz"
-
- 1. write and sync access to the synctarget "kcp-syncer-kind-25coemaz"
- 2. write access to apiresourceimports.
-
-Creating or updating cluster role binding "kcp-syncer-kind-25coemaz" to bind service account "kcp-syncer-kind-25coemaz" to cluster role "kcp-syncer-kind-25coemaz".
-
-Wrote physical cluster manifest to syncer-kind-main.yaml for namespace "kcp-syncer-kind-25coemaz". Use
-
-  KUBECONFIG=<pcluster-config> kubectl apply -f "syncer-kind-main.yaml"
-
-to apply it. Use
-
-  KUBECONFIG=<pcluster-config> kubectl get deployment -n "kcp-syncer-kind-25coemaz" kcp-syncer-kind-25coemaz
-
-to verify the syncer pod is running.
-```
-
-Next, we need to install the syncer pod on our `kind` cluster - this is what actually syncs content from kcp to the
-physical cluster. Run the following command:
-
-```shell
-$ KUBECONFIG=</path/to/kind/kubeconfig> kubectl apply -f "syncer-kind-main.yaml"
-namespace/kcp-syncer-kind-25coemaz created
-serviceaccount/kcp-syncer-kind-25coemaz created
-secret/kcp-syncer-kind-25coemaz-token created
-clusterrole.rbac.authorization.k8s.io/kcp-syncer-kind-25coemaz created
-clusterrolebinding.rbac.authorization.k8s.io/kcp-syncer-kind-25coemaz created
-secret/kcp-syncer-kind-25coemaz created
-deployment.apps/kcp-syncer-kind-25coemaz created
-```
-
-### Create a deployment in kcp
-
-Let's create a deployment in our kcp workspace and see it get synced to our cluster:
-
-```shell
-$ kubectl create deployment --image=gcr.io/kuar-demo/kuard-amd64:blue --port=8080 kuard
-deployment.apps/kuard created
-```
-
-Once your cluster has pulled the image and started the pod, you should be able to verify the deployment is running in
-kcp:
-
-```shell
-$ kubectl get deployments
-NAME    READY   UP-TO-DATE   AVAILABLE   AGE
-kuard   1/1     1            1           3s
-```
-
-We are still working on adding support for `kubectl logs`, `kubectl exec`, and `kubectl port-forward` to kcp. For the
-time being, you can check directly in your cluster.
-
-kcp translates the names of namespaces in workspaces to unique names in a physical cluster. We first must get this
-translated name; if you're following along, your translated name might be different.
-
-```shell
-$ KUBECONFIG=</path/to/kind/kubeconfig> kubectl get pods --all-namespaces --selector app=kuard
-NAMESPACE          NAME                     READY   STATUS    RESTARTS   AGE
-kcp-26zq2mc2yajx   kuard-7d49c786c5-wfpcc   1/1     Running   0          4m28s
-```
-
-Now we can e.g. check the pod logs:
-
-```shell
-$ KUBECONFIG=</path/to/kind/kubeconfig> kubectl --namespace kcp-26zq2mc2yajx logs deployment/kuard | head
-2022/09/07 14:04:35 Starting kuard version: v0.10.0-blue
-2022/09/07 14:04:35 **********************************************************************
-2022/09/07 14:04:35 * WARNING: This server may expose sensitive
-2022/09/07 14:04:35 * and secret information. Be careful.
-2022/09/07 14:04:35 **********************************************************************
-2022/09/07 14:04:35 Config:
-{
-  "address": ":8080",
-  "debug": false,
-  "debug-sitedata-dir": "./sitedata",
-```
-
 ## Next steps
 
 Thanks for checking out our quickstart!
@@ -155,8 +64,6 @@ documentation:
 
 - [Concepts](docs/concepts.md) - a high level overview of kcp concepts
 - [Workspaces](docs/workspaces.md) - a more thorough introduction on kcp's workspaces
-- [Locations & scheduling](docs/locations-and-scheduling.md) - details on kcp's primitives that abstract over clusters
-- [Syncer](docs/syncer.md) - information on running the kcp agent that syncs content between kcp and a physical cluster
 - [kubectl plugin](docs/kubectl-kcp-plugin.md)
 - [Authorization](docs/authorization.md) - how kcp manages access control to workspaces and content
 - [Virtual workspaces](docs/virtual-workspaces.md) - details on kcp's mechanism for virtual views of workspace content
