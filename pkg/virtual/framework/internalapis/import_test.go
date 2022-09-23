@@ -34,7 +34,6 @@ import (
 	k8sopenapi "k8s.io/kubernetes/pkg/generated/openapi"
 	"sigs.k8s.io/yaml"
 
-	workloadv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/workload/v1alpha1"
 	kcpopenapi "github.com/kcp-dev/kcp/pkg/openapi"
 )
 
@@ -64,20 +63,8 @@ func TestImportInternalAPIs(t *testing.T) {
 			Instance:      &corev1.ConfigMap{},
 			ResourceScope: apiextensionsv1.NamespaceScoped,
 		},
-		{
-			Names: apiextensionsv1.CustomResourceDefinitionNames{
-				Plural:   "synctargets",
-				Singular: "synctarget",
-				Kind:     "SyncTarget",
-			},
-			GroupVersion:  schema.GroupVersion{Group: "workload.kcp.dev", Version: "v1alpha1"},
-			Instance:      &workloadv1alpha1.SyncTarget{},
-			ResourceScope: apiextensionsv1.ClusterScoped,
-			HasStatus:     true,
-		},
 	}
 	workloadScheme := runtime.NewScheme()
-	err := workloadv1alpha1.AddToScheme(workloadScheme)
 	require.NoError(t, err)
 	schemas, err := CreateAPIResourceSchemas(
 		[]*runtime.Scheme{legacyscheme.Scheme, workloadScheme},

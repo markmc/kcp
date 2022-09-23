@@ -26,10 +26,8 @@ import (
 
 	v1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apiresource/v1alpha1"
 	apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
-	schedulingv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/scheduling/v1alpha1"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
 	v1beta1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1beta1"
-	workloadv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/workload/v1alpha1"
 )
 
 // GenericInformer is type of SharedIndexInformer which will locate and delegate to other
@@ -72,12 +70,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	case apisv1alpha1.SchemeGroupVersion.WithResource("apiresourceschemas"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Apis().V1alpha1().APIResourceSchemas().Informer()}, nil
 
-		// Group=scheduling.kcp.dev, Version=v1alpha1
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("locations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().Locations().Informer()}, nil
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("placements"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().Placements().Informer()}, nil
-
 		// Group=tenancy.kcp.dev, Version=v1alpha1
 	case tenancyv1alpha1.SchemeGroupVersion.WithResource("clusterworkspaces"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Tenancy().V1alpha1().ClusterWorkspaces().Informer()}, nil
@@ -89,10 +81,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		// Group=tenancy.kcp.dev, Version=v1beta1
 	case v1beta1.SchemeGroupVersion.WithResource("workspaces"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Tenancy().V1beta1().Workspaces().Informer()}, nil
-
-		// Group=workload.kcp.dev, Version=v1alpha1
-	case workloadv1alpha1.SchemeGroupVersion.WithResource("synctargets"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Workload().V1alpha1().SyncTargets().Informer()}, nil
 
 	}
 
