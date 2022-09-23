@@ -31,7 +31,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/genericcontrolplane"
@@ -87,12 +86,7 @@ func NewServer(c CompletedConfig) (*Server, error) {
 		s.MiniAggregator.GenericAPIServer.LoopbackClientConfig,
 		func(obj interface{}) bool { return true },
 		s.ApiExtensionsSharedInformerFactory.Apiextensions().V1().CustomResourceDefinitions(),
-		indexers.AppendOrDie(
-			indexers.NamespaceScoped(),
-			cache.Indexers{
-				indexers.BySyncerFinalizerKey: indexers.IndexBySyncerFinalizerKey,
-			},
-		),
+		indexers.NamespaceScoped(),
 	)
 	if err != nil {
 		return nil, err
