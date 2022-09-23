@@ -104,14 +104,6 @@ build: require-jq require-go require-git verify-go-versions ## Build the project
 build-all:
 	GOOS=$(OS) GOARCH=$(ARCH) $(MAKE) build WHAT=./cmd/...
 
-.PHONY: build-kind-images
-build-kind-images-ko: require-ko
-	$(eval SYNCER_IMAGE=$(shell KO_DOCKER_REPO=kind.local ko build --platform=linux/$(ARCH) ./cmd/syncer))
-	$(eval TEST_IMAGE=$(shell KO_DOCKER_REPO=kind.local ko build --platform=linux/$(ARCH) ./test/e2e/fixtures/kcp-test-image))
-build-kind-images: build-kind-images-ko
-	test -n "$(SYNCER_IMAGE)" || (echo Failed to create syncer image; exit 1)
-	test -n "$(TEST_IMAGE)" || (echo Failed to create test image; exit 1)
-
 install: WHAT ?= ./cmd/...
 install:
 	GOOS=$(OS) GOARCH=$(ARCH) go install -ldflags="$(LDFLAGS)" $(WHAT)
@@ -230,15 +222,14 @@ test-e2e-shared: LOG_DIR ?= $(ARTIFACT_DIR)/kcp
 else
 test-e2e-shared: LOG_DIR ?= $(WORK_DIR)/.kcp
 endif
-test-e2e-shared: require-kind build-all build-kind-images
+test-e2e-shared: require-kind build-all
 	mkdir -p "$(LOG_DIR)" "$(WORK_DIR)/.kcp"
-	kind get kubeconfig > "$(WORK_DIR)/.kcp/kind.kubeconfig"
 	rm -f "$(WORK_DIR)/.kcp/admin.kubeconfig"
 	UNSAFE_E2E_HACK_DISABLE_ETCD_FSYNC=true NO_GORUN=1 ./bin/test-server --log-file-path="$(LOG_DIR)/kcp.log" $(TEST_SERVER_ARGS) 2>&1 & PID=$$! && echo "PID $$PID" && \
 	trap 'kill -TERM $$PID' TERM INT EXIT && \
 	while [ ! -f "$(WORK_DIR)/.kcp/admin.kubeconfig" ]; do sleep 1; done && \
 	NO_GORUN=1 GOOS=$(OS) GOARCH=$(ARCH) $(GO_TEST) -race -count $(COUNT) -p $(E2E_PARALLELISM) -parallel $(E2E_PARALLELISM) $(WHAT) $(TEST_ARGS) \
-		-args --use-default-kcp-server --syncer-image="$(SYNCER_IMAGE)" --kcp-test-image="$(TEST_IMAGE)" --pcluster-kubeconfig="$(abspath $(WORK_DIR)/.kcp/kind.kubeconfig)" \
+		-args --use-default-kcp-server \
 	$(if $(value WAIT),|| { echo "Terminated with $$?"; wait "$$PID"; },)
 
 .PHONY: test-e2e-sharded
@@ -253,16 +244,14 @@ test-e2e-sharded: LOG_DIR ?= $(ARTIFACT_DIR)/kcp
 else
 test-e2e-sharded: LOG_DIR ?= $(WORK_DIR)/.kcp
 endif
-test-e2e-sharded: require-kind build-all build-kind-images
+test-e2e-sharded: require-kind build-all
 	mkdir -p "$(LOG_DIR)" "$(WORK_DIR)/.kcp"
-	kind get kubeconfig > "$(WORK_DIR)/.kcp/kind.kubeconfig"
 	rm -f "$(WORK_DIR)/.kcp/admin.kubeconfig"
 	UNSAFE_E2E_HACK_DISABLE_ETCD_FSYNC=true NO_GORUN=1 ./bin/sharded-test-server --v=2 --log-dir-path="$(LOG_DIR)" --work-dir-path="$(WORK_DIR)" $(TEST_SERVER_ARGS) --number-of-shards=2 2>&1 & PID=$$!; echo "PID $$PID" && \
 	trap 'kill -TERM $$PID' TERM INT EXIT && \
 	while [ ! -f "$(WORK_DIR)/.kcp/admin.kubeconfig" ]; do sleep 1; done && \
 	NO_GORUN=1 GOOS=$(OS) GOARCH=$(ARCH) $(GO_TEST) -race -count $(COUNT) -p $(E2E_PARALLELISM) -parallel $(E2E_PARALLELISM) $(WHAT) $(TEST_ARGS) \
 		-args --use-default-kcp-server --root-shard-kubeconfig=$(PWD)/.kcp-0/admin.kubeconfig \
-		--syncer-image="$(SYNCER_IMAGE)" --kcp-test-image="$(TEST_IMAGE)" --pcluster-kubeconfig="$(abspath $(WORK_DIR)/.kcp/kind.kubeconfig)" \
 	$(if $(value WAIT),|| { echo "Terminated with $$?"; wait "$$PID"; },)
 
 .PHONY: test
