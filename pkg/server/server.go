@@ -42,7 +42,6 @@ import (
 	systemcrds "github.com/kcp-dev/kcp/config/system-crds"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
 	bootstrappolicy "github.com/kcp-dev/kcp/pkg/authorization/bootstrap"
-	kcpfeatures "github.com/kcp-dev/kcp/pkg/features"
 	"github.com/kcp-dev/kcp/pkg/indexers"
 	"github.com/kcp-dev/kcp/pkg/informer"
 	"github.com/kcp-dev/kcp/pkg/logging"
@@ -397,15 +396,6 @@ func (s *Server) Run(ctx context.Context) error {
 		if err := s.installApiResourceController(ctx, controllerConfig); err != nil {
 			return err
 		}
-		if err := s.installSyncTargetHeartbeatController(ctx, controllerConfig); err != nil {
-			return err
-		}
-		if err := s.installSyncTargetController(ctx, controllerConfig, delegationChainHead); err != nil {
-			return err
-		}
-		if err := s.installWorkloadsSyncTargetExportController(ctx, controllerConfig, delegationChainHead); err != nil {
-			return err
-		}
 	}
 
 	if s.Options.Controllers.EnableAll || enabled.Has("workspace-scheduler") {
@@ -413,12 +403,6 @@ func (s *Server) Run(ctx context.Context) error {
 			return err
 		}
 		if err := s.installWorkspaceDeletionController(ctx, controllerConfig); err != nil {
-			return err
-		}
-	}
-
-	if s.Options.Controllers.EnableAll || enabled.Has("resource-scheduler") {
-		if err := s.installWorkloadResourceScheduler(ctx, controllerConfig, s.DynamicDiscoverySharedInformerFactory); err != nil {
 			return err
 		}
 	}
@@ -438,32 +422,6 @@ func (s *Server) Run(ctx context.Context) error {
 	if s.Options.Controllers.EnableAll || enabled.Has("apibinder") {
 		if err := s.installAPIBinderController(ctx, controllerConfig, delegationChainHead); err != nil {
 			return err
-		}
-	}
-
-	if kcpfeatures.DefaultFeatureGate.Enabled(kcpfeatures.LocationAPI) {
-		if s.Options.Controllers.EnableAll || enabled.Has("scheduling") {
-			if err := s.installWorkloadNamespaceScheduler(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installWorkloadPlacementScheduler(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installSchedulingLocationStatusController(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installSchedulingPlacementController(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installWorkloadsAPIExportController(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installWorkloadsAPIExportCreateController(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
-			if err := s.installDefaultPlacementController(ctx, controllerConfig, delegationChainHead); err != nil {
-				return err
-			}
 		}
 	}
 
