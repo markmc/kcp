@@ -31,7 +31,6 @@ import (
 	apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
 	workloadv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/workload/v1alpha1"
-	"github.com/kcp-dev/kcp/pkg/syncer"
 )
 
 const (
@@ -41,7 +40,6 @@ const (
 var (
 	annotationAllowList = []string{
 		workloadv1alpha1.AnnotationSkipDefaultObjectCreation,
-		syncer.AdvancedSchedulingFeatureAnnotation,
 		tenancyv1alpha1.ExperimentalClusterWorkspaceOwnerAnnotationKey, // this is protected by clusterworkspace admission from non-system:admins
 	}
 	labelAllowList = []string{

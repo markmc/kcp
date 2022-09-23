@@ -53,7 +53,6 @@ import (
 	kcpclient "github.com/kcp-dev/kcp/pkg/client/clientset/versioned"
 	kcpinformers "github.com/kcp-dev/kcp/pkg/client/informers/externalversions"
 	"github.com/kcp-dev/kcp/pkg/embeddedetcd"
-	kcpfeatures "github.com/kcp-dev/kcp/pkg/features"
 	"github.com/kcp-dev/kcp/pkg/indexers"
 	"github.com/kcp-dev/kcp/pkg/informer"
 	"github.com/kcp-dev/kcp/pkg/server/bootstrap"
@@ -61,7 +60,6 @@ import (
 	kcpserveroptions "github.com/kcp-dev/kcp/pkg/server/options"
 	"github.com/kcp-dev/kcp/pkg/server/options/batteries"
 	"github.com/kcp-dev/kcp/pkg/server/requestinfo"
-	"github.com/kcp-dev/kcp/pkg/tunneler"
 )
 
 type Config struct {
@@ -342,10 +340,6 @@ func NewConfig(opts *kcpserveroptions.CompletedOptions) (*Config, error) {
 		mux.Handle("/", apiHandler)
 		*c.preHandlerChainMux = append(*c.preHandlerChainMux, mux)
 		apiHandler = mux
-
-		if kcpfeatures.DefaultFeatureGate.Enabled(kcpfeatures.SyncerTunnel) {
-			apiHandler = tunneler.WithSyncerTunnel(apiHandler)
-		}
 
 		apiHandler = WithWorkspaceProjection(apiHandler)
 		apiHandler = kcpfilters.WithAuditEventClusterAnnotation(apiHandler)
