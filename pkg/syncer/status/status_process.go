@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
+	// "strings"
 
 	"github.com/kcp-dev/logicalcluster/v2"
 
@@ -34,7 +34,7 @@ import (
 	"k8s.io/klog/v2"
 
 	workloadv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/workload/v1alpha1"
-	workloadcliplugin "github.com/kcp-dev/kcp/pkg/cliplugins/workload/plugin"
+	// workloadcliplugin "github.com/kcp-dev/kcp/pkg/cliplugins/workload/plugin"
 	"github.com/kcp-dev/kcp/pkg/logging"
 	"github.com/kcp-dev/kcp/pkg/syncer/shared"
 )
@@ -59,10 +59,10 @@ func (c *Controller) process(ctx context.Context, gvr schema.GroupVersionResourc
 		return nil
 	}
 	// TODO(sttts): do not reference the cli plugin here
-	if strings.HasPrefix(downstreamNamespace, workloadcliplugin.SyncerIDPrefix) {
-		// skip syncer namespace
-		return nil
-	}
+	// if strings.HasPrefix(downstreamNamespace, workloadcliplugin.SyncerIDPrefix) {
+	// skip syncer namespace
+	//	return nil
+	//}
 
 	logger = logger.WithValues(logging.DownstreamNamespaceKey, downstreamNamespace, logging.DownstreamNameKey, downstreamName)
 
