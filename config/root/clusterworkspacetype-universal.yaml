@@ -8,10 +8,6 @@ spec:
   - path: root
     exportName: tenancy.kcp.dev
   - path: root
-    exportName: scheduling.kcp.dev
-  - path: root
-    exportName: workload.kcp.dev
-  - path: root
     exportName: apiresource.kcp.dev
   defaultChildren:
     types:
