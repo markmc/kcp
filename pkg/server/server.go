@@ -365,13 +365,6 @@ func (s *Server) Run(ctx context.Context) error {
 		logger.WithValues("controllers", enabled).Info("starting controllers individually")
 	}
 
-	if s.Options.Controllers.EnableAll || enabled.Has("cluster") {
-		// TODO(marun) Consider enabling each controller via a separate flag
-		if err := s.installApiResourceController(ctx, controllerConfig); err != nil {
-			return err
-		}
-	}
-
 	if s.Options.Controllers.EnableAll || enabled.Has("workspace-scheduler") {
 		if err := s.installWorkspaceScheduler(ctx, controllerConfig); err != nil {
 			return err

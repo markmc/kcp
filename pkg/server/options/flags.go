@@ -171,8 +171,6 @@ var (
 		"home-workspaces-root-prefix",            // Logical cluster name of the workspace that will contains home workspaces for all workspaces.
 
 		// KCP Controllers flags
-		"auto-publish-apis",                      // If true, the APIs imported from physical clusters will be published automatically as CRDs
-		"apiresource-controller-threads",         // Number of threads to use for the apiresource controller.
 		"run-controllers",                        // Run the controllers in-process
 		"run-virtual-workspaces",                 // Run the virtual workspaces apiservers in-process
 		"unsupported-run-individual-controllers", // Run individual controllers in-process. The controller names can change at any time.

@@ -58,7 +58,6 @@ import (
 	"github.com/kcp-dev/kcp/pkg/reconciler/apis/apibinding"
 	"github.com/kcp-dev/kcp/pkg/reconciler/apis/apibindingdeletion"
 	"github.com/kcp-dev/kcp/pkg/reconciler/apis/apiexport"
-	"github.com/kcp-dev/kcp/pkg/reconciler/apis/apiresource"
 	"github.com/kcp-dev/kcp/pkg/reconciler/apis/identitycache"
 	"github.com/kcp-dev/kcp/pkg/reconciler/apis/permissionclaimlabel"
 	"github.com/kcp-dev/kcp/pkg/reconciler/kubequota"
@@ -417,45 +416,6 @@ func (s *Server) installWorkspaceScheduler(ctx context.Context, config *rest.Con
 		}
 		go workspaceTypeController.Start(ctx, 2)
 		go universalController.Start(ctx, 2)
-
-		return nil
-	})
-}
-
-func (s *Server) installApiResourceController(ctx context.Context, config *rest.Config) error {
-	controllerName := "kcp-api-resource-controller"
-	config = rest.CopyConfig(config)
-	config = rest.AddUserAgent(kcpclienthelper.SetMultiClusterRoundTripper(config), controllerName)
-
-	crdClusterClient, err := apiextensionsclient.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-	kcpClusterClient, err := kcpclient.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-
-	c, err := apiresource.NewController(
-		crdClusterClient,
-		kcpClusterClient,
-		s.Options.Controllers.ApiResource.AutoPublishAPIs,
-		s.KcpSharedInformerFactory.Apiresource().V1alpha1().NegotiatedAPIResources(),
-		s.KcpSharedInformerFactory.Apiresource().V1alpha1().APIResourceImports(),
-		s.ApiExtensionsSharedInformerFactory.Apiextensions().V1().CustomResourceDefinitions(),
-	)
-	if err != nil {
-		return err
-	}
-
-	return s.AddPostStartHook(postStartHookName(controllerName), func(hookContext genericapiserver.PostStartHookContext) error {
-		logger := klog.FromContext(ctx).WithValues("postStartHook", postStartHookName(controllerName))
-		if err := s.waitForSync(hookContext.StopCh); err != nil {
-			logger.Error(err, "failed to finish post-start-hook")
-			return nil // don't klog.Fatal. This only happens when context is cancelled.
-		}
-
-		go c.Start(ctx, s.Options.Controllers.ApiResource.NumThreads)
 
 		return nil
 	})
