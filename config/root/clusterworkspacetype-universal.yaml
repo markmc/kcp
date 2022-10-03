@@ -7,8 +7,6 @@ spec:
   defaultAPIBindings:
   - path: root
     exportName: tenancy.kcp.dev
-  - path: root
-    exportName: apiresource.kcp.dev
   defaultChildren:
     types:
     - name: universal

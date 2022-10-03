@@ -29,7 +29,6 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 
 	versioned "github.com/kcp-dev/kcp/pkg/client/clientset/versioned"
-	apiresource "github.com/kcp-dev/kcp/pkg/client/informers/externalversions/apiresource"
 	apis "github.com/kcp-dev/kcp/pkg/client/informers/externalversions/apis"
 	internalinterfaces "github.com/kcp-dev/kcp/pkg/client/informers/externalversions/internalinterfaces"
 	tenancy "github.com/kcp-dev/kcp/pkg/client/informers/externalversions/tenancy"
@@ -219,13 +218,8 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Apiresource() apiresource.Interface
 	Apis() apis.Interface
 	Tenancy() tenancy.Interface
-}
-
-func (f *sharedInformerFactory) Apiresource() apiresource.Interface {
-	return apiresource.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) Apis() apis.Interface {
