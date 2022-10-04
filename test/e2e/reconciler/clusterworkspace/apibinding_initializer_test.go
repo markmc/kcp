@@ -96,24 +96,6 @@ func TestClusterWorkspaceTypeAPIBindingInitialization(t *testing.T) {
 					Path:       logicalcluster.From(cowboysAPIExport).String(),
 					ExportName: cowboysAPIExport.Name,
 				},
-				{
-					Path:       "root",
-					ExportName: "scheduling.kcp.dev",
-				},
-			},
-		},
-	}
-
-	cwtParent2 := &tenancyv1alpha1.ClusterWorkspaceType{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "parent2",
-		},
-		Spec: tenancyv1alpha1.ClusterWorkspaceTypeSpec{
-			DefaultAPIBindings: []tenancyv1alpha1.APIExportReference{
-				{
-					Path:       "root",
-					ExportName: "workload.kcp.dev",
-				},
 			},
 		},
 	}
@@ -135,10 +117,6 @@ func TestClusterWorkspaceTypeAPIBindingInitialization(t *testing.T) {
 						Name: "parent1",
 						Path: universal.String(),
 					},
-					{
-						Name: "parent2",
-						Path: universal.String(),
-					},
 				},
 			},
 		},
@@ -147,10 +125,6 @@ func TestClusterWorkspaceTypeAPIBindingInitialization(t *testing.T) {
 	t.Logf("Creating ClusterWorkspaceType parent1")
 	_, err = kcpClusterClient.TenancyV1alpha1().ClusterWorkspaceTypes().Create(logicalcluster.WithCluster(ctx, universal), cwtParent1, metav1.CreateOptions{})
 	require.NoError(t, err, "error creating cwt parent1")
-
-	t.Logf("Creating ClusterWorkspaceType parent2")
-	_, err = kcpClusterClient.TenancyV1alpha1().ClusterWorkspaceTypes().Create(logicalcluster.WithCluster(ctx, universal), cwtParent2, metav1.CreateOptions{})
-	require.NoError(t, err, "error creating cwt parent2")
 
 	t.Logf("Creating ClusterWorkspaceType test")
 	_, err = kcpClusterClient.TenancyV1alpha1().ClusterWorkspaceTypes().Create(logicalcluster.WithCluster(ctx, universal), cwt, metav1.CreateOptions{})
