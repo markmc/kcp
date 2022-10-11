@@ -30,7 +30,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 
-	virtualcommandoptions "github.com/kcp-dev/kcp/cmd/virtual-workspaces/options"
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	virtualrootapiserver "github.com/kcp-dev/kcp/pkg/virtual/framework/rootapiserver"
 	virtualoptions "github.com/kcp-dev/kcp/pkg/virtual/options"
 )
@@ -52,7 +52,7 @@ func (s *Server) installVirtualWorkspaces(
 	// create virtual workspaces
 	virtualWorkspaces, err := s.Options.Virtual.VirtualWorkspaces.NewVirtualWorkspaces(
 		config,
-		virtualcommandoptions.DefaultRootPathPrefix,
+		tenancyhelper.DefaultRootPathPrefix,
 		s.KubeSharedInformerFactory,
 		s.KcpSharedInformerFactory,
 	)
@@ -116,7 +116,7 @@ func (s *Server) installVirtualWorkspaces(
 	}
 
 	logger.Info("starting virtual workspace apiserver")
-	preHandlerChainMux.Handle(virtualcommandoptions.DefaultRootPathPrefix+"/", preparedRootAPIServer.GenericAPIServer.Handler)
+	preHandlerChainMux.Handle(tenancyhelper.DefaultRootPathPrefix+"/", preparedRootAPIServer.GenericAPIServer.Handler)
 
 	return nil
 }

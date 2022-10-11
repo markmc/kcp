@@ -30,8 +30,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	virtualoptions "github.com/kcp-dev/kcp/cmd/virtual-workspaces/options"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	tenancyv1beta1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1beta1"
 	kcpclientset "github.com/kcp-dev/kcp/pkg/client/clientset/versioned"
 	"github.com/kcp-dev/kcp/test/e2e/framework"
@@ -188,6 +188,6 @@ type virtualClusterClient struct {
 
 func (c *virtualClusterClient) Cluster(cluster logicalcluster.Name) kcpclientset.Interface {
 	config := rest.CopyConfig(c.config)
-	config.Host += path.Join(virtualoptions.DefaultRootPathPrefix, "workspaces", cluster.String())
+	config.Host += path.Join(tenancyhelper.DefaultRootPathPrefix, "workspaces", cluster.String())
 	return kcpclientset.NewForConfigOrDie(config)
 }

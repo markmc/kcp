@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/kcp-dev/logicalcluster/v2"
+	"github.com/stretchr/testify/require"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -107,6 +108,52 @@ func TestWorkspaceLabelSelector(t *testing.T) {
 		t.Run(tt.ws, func(t *testing.T) {
 			if got := WorkspaceLabelSelector(tt.ws); got != tt.selector {
 				t.Errorf("WorkspaceLabelSelector(%s) = %s, want %s", tt.ws, got, tt.selector)
+			}
+		})
+	}
+}
+
+func TestParseClusterURL(t *testing.T) {
+	tests := []struct {
+		host    string
+		url     string
+		cluster string
+		wantErr bool
+	}{
+		{host: "", wantErr: true},
+		{host: "garbgae", wantErr: true},
+		{host: "https://host/foo", wantErr: true},
+		{host: "https://host/clusters/root", url: "https://host", cluster: "root"},
+		{host: "https://host/clusters/root:foo", url: "https://host", cluster: "root:foo"},
+		{host: "https://host/clusters/system:foo", url: "https://host", cluster: "system:foo"},
+		{host: "https://host/clusters/abc:def", wantErr: true},
+		{host: "https://host/clusters/", wantErr: true},
+		{host: "https://host/clusters", wantErr: true},
+		{host: "https://host/clusters/root:foo:bar", url: "https://host", cluster: "root:foo:bar"},
+		{host: "https://host/clusters/root:foo/abc", url: "https://host", cluster: "root:foo"},
+		{host: "https://host/services/workspaces/root:foo:bar", url: "https://host", cluster: "root:foo:bar"},
+		{host: "https://host/services/workspaces/root:foo:bar/abc", url: "https://host", cluster: "root:foo:bar"},
+		{host: "https://host/services/workspaces/", wantErr: true},
+		{host: "https://host/services/workspaces", wantErr: true},
+		{host: "https://host/abc/clusters/root:foo", url: "https://host/abc", cluster: "root:foo"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			gotURL, gotCluster, err := ParseClusterURL(tt.host)
+			if tt.wantErr {
+				require.Error(t, err, "instead of error got %q, %q", gotURL, gotCluster)
+			} else {
+				require.NoError(t, err)
+			}
+			var gotURLStr string
+			if gotURL != nil {
+				gotURLStr = gotURL.String()
+			}
+			if gotURLStr != tt.url {
+				t.Errorf("url, _ := parseClusterURL(%q) got = %v, want %v", tt.host, gotURL, tt.url)
+			}
+			if gotCluster != logicalcluster.New(tt.cluster) {
+				t.Errorf("_, cluster := parseClusterURL(%q) got = %v, want %v", tt.host, gotCluster, tt.cluster)
 			}
 		})
 	}

@@ -40,10 +40,10 @@ import (
 
 	apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	tenancyv1beta1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1beta1"
 	kcpclient "github.com/kcp-dev/kcp/pkg/client/clientset/versioned"
 	"github.com/kcp-dev/kcp/pkg/cliplugins/base"
-	pluginhelpers "github.com/kcp-dev/kcp/pkg/cliplugins/helpers"
 )
 
 const (
@@ -187,7 +187,7 @@ func (o *UseWorkspaceOptions) Run(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		u, currentClusterName, err := pluginhelpers.ParseClusterURL(config.Host)
+		u, currentClusterName, err := tenancyhelper.ParseClusterURL(config.Host)
 		if err != nil {
 			return fmt.Errorf("current URL %q does not point to cluster workspace", config.Host)
 		}
@@ -234,7 +234,7 @@ func (o *UseWorkspaceOptions) Run(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		u, currentClusterName, err := pluginhelpers.ParseClusterURL(config.Host)
+		u, currentClusterName, err := tenancyhelper.ParseClusterURL(config.Host)
 		if err != nil {
 			return fmt.Errorf("current URL %q does not point to cluster workspace", config.Host)
 		}
@@ -331,7 +331,7 @@ func (o *UseWorkspaceOptions) Run(ctx context.Context) error {
 
 // getAPIBindings retrieves APIBindings within the workspace
 func getAPIBindings(ctx context.Context, kcpClusterClient kcpclient.ClusterInterface, host string) ([]apisv1alpha1.APIBinding, error) {
-	_, clusterName, err := pluginhelpers.ParseClusterURL(host)
+	_, clusterName, err := tenancyhelper.ParseClusterURL(host)
 	if err != nil {
 		return nil, err
 	}
@@ -402,7 +402,7 @@ func (o *CurrentWorkspaceOptions) Run(ctx context.Context) error {
 type shortWorkspaceOutput bool
 
 func currentWorkspace(out io.Writer, host string, shortWorkspaceOutput shortWorkspaceOutput, workspaceType *tenancyv1alpha1.ClusterWorkspaceTypeReference) error {
-	_, clusterName, err := pluginhelpers.ParseClusterURL(host)
+	_, clusterName, err := tenancyhelper.ParseClusterURL(host)
 	if err != nil {
 		if shortWorkspaceOutput {
 			return nil
@@ -492,7 +492,7 @@ func (o *CreateWorkspaceOptions) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, currentClusterName, err := pluginhelpers.ParseClusterURL(config.Host)
+	_, currentClusterName, err := tenancyhelper.ParseClusterURL(config.Host)
 	if err != nil {
 		return fmt.Errorf("current URL %q does not point to cluster workspace", config.Host)
 	}
@@ -690,7 +690,7 @@ func (o *CreateContextOptions) Run(ctx context.Context) error {
 	if !ok {
 		return fmt.Errorf("current cluster %q is not found in kubeconfig", currentContext.Cluster)
 	}
-	_, currentClusterName, err := pluginhelpers.ParseClusterURL(currentCluster.Server)
+	_, currentClusterName, err := tenancyhelper.ParseClusterURL(currentCluster.Server)
 	if err != nil {
 		return fmt.Errorf("current URL %q does not point to cluster workspace", currentCluster.Server)
 	}
@@ -788,7 +788,7 @@ func (o *TreeOptions) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, currentClusterName, err := pluginhelpers.ParseClusterURL(config.Host)
+	_, currentClusterName, err := tenancyhelper.ParseClusterURL(config.Host)
 	if err != nil {
 		return fmt.Errorf("current config context URL %q does not point to workspace", config.Host)
 	}
@@ -820,7 +820,7 @@ func (o *TreeOptions) populateBranch(ctx context.Context, tree treeprint.Tree, n
 	}
 
 	for _, workspace := range results.Items {
-		_, currentClusterName, err := pluginhelpers.ParseClusterURL(workspace.Status.URL)
+		_, currentClusterName, err := tenancyhelper.ParseClusterURL(workspace.Status.URL)
 		if err != nil {
 			return fmt.Errorf("current config context URL %q does not point to workspace", workspace.Status.URL)
 		}

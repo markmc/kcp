@@ -18,6 +18,9 @@ package helper
 
 import (
 	"fmt"
+	"net/url"
+	"path"
+	"strings"
 
 	"github.com/kcp-dev/logicalcluster/v2"
 
@@ -52,4 +55,32 @@ func QualifiedObjectName(obj metav1.Object) string {
 // given workspace.
 func WorkspaceLabelSelector(name string) string {
 	return fmt.Sprintf("%s=%s", v1beta1.WorkspaceNameLabel, name)
+}
+
+// DefaultRootPathPrefix is basically constant forever, or we risk a breaking change. The
+// kubectl plugin for example will use this prefix to generate the root path, and because
+// we don't control kubectl plugin updates, we cannot change this prefix.
+const DefaultRootPathPrefix string = "/services"
+
+// ParseClusterURL parses a cluster workspace URL and returns both the
+// base URL (i.e. with the clusters prefix removed) and the cluster name
+func ParseClusterURL(host string) (*url.URL, logicalcluster.Name, error) {
+	u, err := url.Parse(host)
+	if err != nil {
+		return nil, logicalcluster.Name{}, err
+	}
+	ret := *u
+	var clusterName logicalcluster.Name
+	for _, prefix := range []string{"/clusters/", path.Join(DefaultRootPathPrefix, "workspaces") + "/"} {
+		if clusterIndex := strings.Index(u.Path, prefix); clusterIndex >= 0 {
+			clusterName = logicalcluster.New(strings.SplitN(ret.Path[clusterIndex+len(prefix):], "/", 2)[0])
+			ret.Path = ret.Path[:clusterIndex]
+			break
+		}
+	}
+	if clusterName.Empty() || !IsValidCluster(clusterName) {
+		return nil, logicalcluster.Name{}, fmt.Errorf("current cluster URL %s is not pointing to a cluster workspace", u)
+	}
+
+	return &ret, clusterName, nil
 }

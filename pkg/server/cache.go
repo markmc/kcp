@@ -22,7 +22,7 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
 
-	virtualcommandoptions "github.com/kcp-dev/kcp/cmd/virtual-workspaces/options"
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	cacheserver "github.com/kcp-dev/kcp/pkg/cache/server"
 )
 
@@ -60,6 +60,6 @@ func (s *Server) installCacheServer(ctx context.Context) error {
 		return err
 	}
 
-	s.preHandlerChainMux.Handle(virtualcommandoptions.DefaultRootPathPrefix+"/cache/", preparedCacheServer.Handler)
+	s.preHandlerChainMux.Handle(tenancyhelper.DefaultRootPathPrefix+"/cache/", preparedCacheServer.Handler)
 	return nil
 }

@@ -29,13 +29,9 @@ import (
 	genericapiserveroptions "k8s.io/apiserver/pkg/server/options"
 	"k8s.io/component-base/logs"
 
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	virtualworkspacesoptions "github.com/kcp-dev/kcp/pkg/virtual/options"
 )
-
-// DefaultRootPathPrefix is basically constant forever, or we risk a breaking change. The
-// kubectl plugin for example will use this prefix to generate the root path, and because
-// we don't control kubectl plugin updates, we cannot change this prefix.
-const DefaultRootPathPrefix string = "/services"
 
 type Options struct {
 	Output io.Writer
@@ -59,7 +55,7 @@ func NewOptions() *Options {
 	opts := &Options{
 		Output: nil,
 
-		RootPathPrefix: DefaultRootPathPrefix,
+		RootPathPrefix: tenancyhelper.DefaultRootPathPrefix,
 
 		SecureServing:  *genericapiserveroptions.NewSecureServingOptions(),
 		Authentication: *genericapiserveroptions.NewDelegatingAuthenticationOptions(),

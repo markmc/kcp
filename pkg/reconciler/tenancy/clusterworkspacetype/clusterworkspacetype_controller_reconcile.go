@@ -25,9 +25,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/klog/v2"
 
-	virtualworkspacesoptions "github.com/kcp-dev/kcp/cmd/virtual-workspaces/options"
 	"github.com/kcp-dev/kcp/pkg/apis/tenancy/initialization"
 	tenancyv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1"
+	tenancyhelper "github.com/kcp-dev/kcp/pkg/apis/tenancy/v1alpha1/helper"
 	conditionsv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/third_party/conditions/apis/conditions/v1alpha1"
 	"github.com/kcp-dev/kcp/pkg/apis/third_party/conditions/util/conditions"
 	"github.com/kcp-dev/kcp/pkg/virtual/initializingworkspaces"
@@ -74,7 +74,7 @@ func (c *controller) updateVirtualWorkspaceURLs(ctx context.Context, cwt *tenanc
 
 		u.Path = path.Join(
 			u.Path,
-			virtualworkspacesoptions.DefaultRootPathPrefix,
+			tenancyhelper.DefaultRootPathPrefix,
 			initializingworkspaces.VirtualWorkspaceName,
 			string(initialization.InitializerForType(cwt)),
 		)
